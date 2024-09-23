@@ -28,10 +28,12 @@ public class Inventory implements Iterable<ItemStack>, Cloneable
      * @param lhs stack whose size will be increased
      * @param rhs stack whose size we need to examine
      */
-    public static void mergeStacks(ItemStack lhs, ItemStack rhs)
-    {
-        // Refer to the notes from Assignment 1
+    public static void mergeStacks(ItemStack lhs, ItemStack rhs) {
+        if (lhs.equals(rhs) && lhs.permitsStacking()) {
+            lhs.addItems(rhs.size());
+        }
     }
+    
 
     /**
      * Individual item slots--each ItemStack occupies one slot.
@@ -95,7 +97,7 @@ public class Inventory implements Iterable<ItemStack>, Cloneable
     public boolean isFull()
     {
         // Replace the next line
-        return false;
+        return this.utilizedSlots() >= this.totalSlots();
     }
 
     /**
@@ -116,10 +118,12 @@ public class Inventory implements Iterable<ItemStack>, Cloneable
      *
      * @return matching stack if one was found and `null` otherwise
      */
-    public ItemStack findMatchingItemStack(ItemStack key)
-    {
-        // Adapt the logic from Assignment 1
-
+    public ItemStack findMatchingItemStack(ItemStack key) {
+        for (ItemStack stack : this.slots) {
+            if (stack.getItem().equals(key.getItem())) {
+                return stack;
+            }
+        }
         return null;
     }
 
@@ -130,7 +134,7 @@ public class Inventory implements Iterable<ItemStack>, Cloneable
      */
     public void addItemStackNoCheck(ItemStack toAdd)
     {
-        // Add the missing (one) line by using `this.slots.add(????)`
+        this.slots.add(toAdd);
     }
 
     /**
@@ -167,7 +171,9 @@ public class Inventory implements Iterable<ItemStack>, Cloneable
     {
         Inventory copy = new Inventory(this.totalSlots());
 
-        // Add the missing copy logic (loop)
+        for (ItemStack stack : this.slots) {
+            copy.addItemStackNoCheck(stack.clone());
+        }
 
         return copy;
     }
@@ -205,19 +211,20 @@ public class Inventory implements Iterable<ItemStack>, Cloneable
      * *Print* a Summary of the Inventory and all Items contained within.
      */
     @Override
-    public String toString()
-    {
+    public String toString() {
         String summaryLine = String.format(
             " -Used %d of %d slots%n", this.utilizedSlots(), this.totalSlots()
         );
-
         StringBuilder strBld = new StringBuilder();
         strBld.append(summaryLine);
-
-        // Add the missing loop
-
+        
+        for (ItemStack stack : this.slots) {
+            strBld.append(stack.toString()).append("\n");
+        }
+        
         return strBld.toString();
     }
+    
 
     @Override
     public Iterator<ItemStack> iterator()
